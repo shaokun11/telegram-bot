@@ -8,11 +8,16 @@ const pool = mysql.createPool({
     database: 'shaokun'
 });
 
-const TABLE_NAME = 'super_hero_drop'
-const ONE_DAY_OF_MILLSECONDS = 86400000
 
-const sql_insert = account => `INSERT INTO ${TABLE_NAME} (account,create_time) VALUES ('${account}',now() )`
-const sql_query = account => `SELECT * FROM ${TABLE_NAME} WHERE account = '${account}' AND create_time >= (now() - ${ONE_DAY_OF_MILLSECONDS})`
+// CREATE TABLE `super_hero_drop` (
+//     `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+//     `account` varchar(15) NOT NULL DEFAULT '',
+//     `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+//     PRIMARY KEY (`id`)
+//   ) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8;
+
+
+const TABLE_NAME = 'super_hero_drop'
 
 function exeSql(sql) {
     let res = {
@@ -35,11 +40,13 @@ function exeSql(sql) {
 }
 
 function insertAccount(account) {
-    return exeSql(sql_insert(account))
+    const sql = `INSERT INTO ${TABLE_NAME} (account) VALUES ('${account}')`
+    return exeSql(sql)
 }
 
 function queryAccountLeastInfo(account) {
-    return exeSql(sql_query(account))
+    const sql = `SELECT * FROM ${TABLE_NAME} WHERE account = '${account}' order by create_time desc limit 0, 1`
+    return exeSql(sql)
 }
 
 module.exports = {

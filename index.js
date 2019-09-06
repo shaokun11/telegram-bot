@@ -3,6 +3,7 @@ const Agent = require('socks5-https-client/lib/Agent');
 const {
     getAccount
 } = require('./chain')
+const moment = require('moment')
 const {
     queryAccountLeastInfo,
     insertAccount
@@ -56,7 +57,6 @@ async function handleTextMsg(msg) {
     const account = text.substr(10, 12)
     // 检查eos账号是否存在
     let accountResult = await getAccount(account)
-    console.log('account exist -->', account, accountResult)
     if (!accountResult) {
         const errroMsg = 'maybe your eos account not exsit,check and try again'
         sendMsg(chatId, errroMsg)
@@ -68,9 +68,15 @@ async function handleTextMsg(msg) {
         return
     }
     if (res.data.length > 0) {
-        sendMsg(chatId, `There's only one chance in 24 hours. Thank you for your support`)
-        return;
+        let lastOpTime = moment(res.data[0].create_time).valueOf();
+        let now = moment().valueOf()
+        let duration = moment.duration(1, 'd').asMilliseconds()
+        if (now - lastOpTime < duration) {
+            sendMsg(chatId, `There's only one chance in 24 hours. Thank you for your support`)
+            return;
+        }
     }
+ 
     res = await insertAccount(account)
     if (res.code < 0) {
         handleErrorCode(res.code)
